@@ -1,0 +1,6 @@
+fastapi>=0.111
+uvicorn[standard]>=0.29
+qdrant-client>=1.9
+pydantic>=2
+sentence-transformers>=2.7
+openai>=1.30

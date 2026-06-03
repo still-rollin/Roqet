@@ -1,0 +1,22 @@
+[project]
+name = "roqet"
+version = "0.1.0"
+description = "Semantic search experiments for Rocq/Coq mathematical libraries"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.111",
+  "uvicorn[standard]>=0.29",
+  "qdrant-client>=1.9",
+  "pydantic>=2",
+]
+
+[project.scripts]
+roqet-extract = "roqet.extract:main"
+roqet-fetch = "roqet.fetch:main"
+roqet-enrich = "roqet.enrich:main"
+roqet-index = "roqet.embedder:main"
+roqet-validate = "roqet.validate:main"
+
+[tool.ruff]
+line-length = 100

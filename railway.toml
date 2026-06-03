@@ -1,0 +1,19 @@
+# Railway deployment configuration for Roqet API
+# Deploy at: railway.app
+
+[build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile.api"
+
+[deploy]
+startCommand = "uvicorn api:app --host 0.0.0.0 --port $PORT"
+healthcheckPath = "/health"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+
+# Set these variables in the Railway service dashboard (Variables tab):
+#   QDRANT_URL      URL of a managed Qdrant instance (e.g. Qdrant Cloud)
+#   QDRANT_API_KEY  API key for that instance
+#   ROQET_EMBEDDER  hash | local | openai  (use "hash" for a zero-dependency deploy)
+#   EMBED_MODEL     sentence-transformers model when ROQET_EMBEDDER=local
+#   OPENAI_API_KEY  required when ROQET_EMBEDDER=openai

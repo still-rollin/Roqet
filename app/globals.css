@@ -1,0 +1,101 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --surface2: #fafafa;
+  --border: #e6e6e9;
+  --border-strong: #d4d4d8;
+  --text: #18181b;
+  --muted: #71717a;
+  --muted2: #a1a1aa;
+  --accent: #4f46e5;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection { background: rgba(79, 70, 229, 0.15); }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #b4b4bb; }
+
+/* Keyboard hint */
+.kbd {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  line-height: 1;
+  padding: 3px 6px;
+  border-radius: 5px;
+  background: #f4f4f5;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+/* Kind badges (light) */
+.kind-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.kind-Lemma, .kind-Theorem, .kind-Corollary, .kind-Proposition, .kind-Remark, .kind-Fact {
+  background: #eef4ff; color: #2563eb; border: 1px solid #dbe6ff;
+}
+.kind-Definition, .kind-Fixpoint, .kind-CoFixpoint, .kind-Let {
+  background: #effaf1; color: #16a34a; border: 1px solid #d6f0db;
+}
+.kind-Inductive, .kind-CoInductive, .kind-Record, .kind-Structure {
+  background: #faf0fd; color: #a21caf; border: 1px solid #f0dcf7;
+}
+.kind-Class, .kind-Instance {
+  background: #fff7ed; color: #c2680c; border: 1px solid #fae3c8;
+}
+.kind-Axiom, .kind-Parameter, .kind-Hypothesis, .kind-Variable {
+  background: #fef2f2; color: #dc2626; border: 1px solid #fadcdc;
+}
+
+/* Type signature code block */
+.type-sig {
+  font-size: 12.5px;
+  color: #3f3f46;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Animations */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
+
+.animate-fade-in { animation: fadeIn 0.25s ease-out both; }
+.animate-slide-up { animation: slideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* Skeleton loader */
+.skeleton {
+  background: linear-gradient(90deg, #f1f1f3 25%, #e7e7ea 50%, #f1f1f3 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s linear infinite;
+  border-radius: 6px;
+}
+
+/* Soft elevation for the search bar */
+.search-shadow { box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06); }
