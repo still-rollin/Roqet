@@ -258,6 +258,50 @@ Index summary.
 
 ---
 
+## MCP server
+
+Roqet ships an [MCP](https://modelcontextprotocol.io) server so LLM agents (Claude
+Desktop, Claude Code, …) can search the libraries by *meaning* as a tool — the
+semantic layer the Rocq MCP ecosystem otherwise lacks. It complements proof-loop
+servers like [rocq-mcp](https://github.com/LLM4Rocq) (which wrap `coqc`'s exact
+keyword `Search`).
+
+It's a **thin client** over the HTTP API above — point it at any running Roqet API
+(local or hosted) with `ROQET_API_URL`.
+
+```bash
+pip install -r requirements-mcp.txt      # or: pip install -e ".[mcp]"
+ROQET_API_URL=http://localhost:8000 roqet-mcp     # stdio transport
+```
+
+Tools exposed:
+- **`roqet_search(query, lib?, kind?, limit?)`** — semantic search; returns matching
+  declarations with type signatures, statements, and source links.
+- **`roqet_stats()`** — what the index currently contains.
+
+### Register with a client
+
+Claude Code:
+```bash
+claude mcp add roqet --env ROQET_API_URL=http://localhost:8000 -- roqet-mcp
+```
+
+Claude Desktop (`claude_desktop_config.json`):
+```json
+{
+  "mcpServers": {
+    "roqet": {
+      "command": "roqet-mcp",
+      "env": { "ROQET_API_URL": "https://your-roqet.up.railway.app" }
+    }
+  }
+}
+```
+(If `roqet-mcp` isn't on PATH, use the absolute path to it, or
+`"command": "python", "args": ["-m", "roqet.mcp_server"]`.)
+
+---
+
 ## Configuration
 
 All configuration is via environment variables.

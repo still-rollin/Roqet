@@ -1,0 +1,4 @@
+# Dependencies for the Roqet MCP server (roqet.mcp_server).
+# The MCP server is a thin HTTP client; it does NOT need the embedding/index deps.
+mcp>=1.2
+httpx>=0.27
