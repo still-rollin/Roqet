@@ -2,18 +2,20 @@
 # Deploy at: railway.app
 
 [build]
-builder = "dockerfile"
+builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile.api"
 
 [deploy]
 # The image's CMD already binds uvicorn to $PORT; no startCommand needed.
 healthcheckPath = "/health"
 healthcheckTimeout = 300
-restartPolicyType = "on_failure"
+restartPolicyType = "ON_FAILURE"
 
-# Dockerfile.api bakes everything the API needs:
-#   - ROQET_EMBEDDER=fastembed + the ONNX model (cached in the image, low RAM)
-#   - the Qdrant index, built at image build time (on-disk, /app/data)
-# So no variables are required to run. Optional overrides (Variables tab):
-#   CORS_ORIGINS    comma-separated allowed origins (set to your Vercel URL to lock down CORS)
-#   FASTEMBED_MODEL swap the ONNX embedding model (must match how the index was built)
+# The API container is slim (fastembed ONNX model only); vectors live in managed
+# Qdrant. REQUIRED variables (set in the Variables tab):
+#   QDRANT_URL      your managed Qdrant endpoint (e.g. Qdrant Cloud)
+#   QDRANT_API_KEY  its API key
+# Optional:
+#   CORS_ORIGINS    comma-separated allowed origins (set to your Vercel URL)
+#   FASTEMBED_MODEL swap the ONNX model (must match how the index was built)
+# Index the cluster once with ./scripts/index_cloud.sh before deploying.

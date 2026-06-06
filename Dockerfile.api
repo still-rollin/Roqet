@@ -5,27 +5,22 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Slim deps: fastembed (ONNX) instead of torch/sentence-transformers, so the
-# image and runtime memory stay small enough for modest hosting tiers.
+# Slim deps: fastembed (ONNX) for query embedding only — no torch, no in-process
+# vector DB. Vectors live in managed Qdrant (set QDRANT_URL / QDRANT_API_KEY),
+# so the container's memory stays small and stable.
 COPY requirements-api.txt .
 RUN pip install --no-cache-dir -r requirements-api.txt
 
 COPY roqet ./roqet
 COPY api.py ./api.py
-COPY deploy/declarations.enriched.jsonl ./deploy/declarations.enriched.jsonl
 
-# Serve with the fastembed (ONNX) embedder, on-disk Qdrant.
 ENV ROQET_EMBEDDER=fastembed \
-    QDRANT_PATH=/app/data/qdrant_storage \
     FASTEMBED_CACHE_PATH=/app/.cache/fastembed
 
-# Bake the index into the image: downloads the ONNX embedding model (cached in
-# the image) and builds the Qdrant store, so container start is fast and needs
-# no network or external vector DB.
-RUN python -m roqet.embedder \
-    --input deploy/declarations.enriched.jsonl \
-    --model fastembed \
-    --reset
+# Pre-download (and cache) the ONNX model at build time so the first query is
+# fast and the running container needs no network for embeddings.
+RUN python -c "from fastembed import TextEmbedding; \
+    list(TextEmbedding('sentence-transformers/all-MiniLM-L6-v2').embed(['warmup']))"
 
 EXPOSE 8000
 # Railway (and most PaaS) inject $PORT; fall back to 8000 locally.

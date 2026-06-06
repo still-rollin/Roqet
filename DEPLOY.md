@@ -3,10 +3,23 @@
 Two pieces: the **API** (FastAPI + Qdrant + local embedder) on **Railway**, and the
 **UI** (Next.js) on **Vercel**.
 
-The API is fully self-contained: `Dockerfile.api` installs CPU-only torch, bakes the
-embedding model into the image, and builds the Qdrant index from
-`deploy/declarations.enriched.jsonl` at build time. No external vector DB, no API
-keys, no runtime network needed.
+The API container is intentionally small: `Dockerfile.api` installs only
+fastembed (ONNX) for query embedding — no torch, and **no in-process vector DB**.
+The vectors live in a **managed Qdrant** cluster (e.g. Qdrant Cloud's free tier),
+which keeps the container's RAM low and stable (the earlier all-in-one image OOM'd
+on small tiers because it held the model *and* all 33k vectors in one process).
+
+### 0. Managed Qdrant (one-time)
+1. Create a free cluster at [cloud.qdrant.io](https://cloud.qdrant.io) and copy its
+   URL and API key.
+2. Load the index into it from your machine:
+   ```bash
+   export QDRANT_URL="https://xxxx.cloud.qdrant.io:6333"
+   export QDRANT_API_KEY="..."
+   ./scripts/index_cloud.sh
+   ```
+3. In the Railway service → Variables, set the same `QDRANT_URL` and
+   `QDRANT_API_KEY`. The API reads them at runtime.
 
 ---
 
