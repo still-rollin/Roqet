@@ -69,6 +69,10 @@ through a FastAPI backend, and presents results in a Next.js UI.
 Shared helpers (canonical schema, GitHub URL building, stable IDs) live in
 `roqet.schema`.
 
+For how retrieval actually works — indexing, dense+sparse vectors, ranking, and the
+**measured** retrieval quality (including approaches that were tried and rejected) —
+see **[SEARCH.md](SEARCH.md)**.
+
 ---
 
 ## Requirements
