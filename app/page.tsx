@@ -15,7 +15,7 @@ import {
   EXAMPLE_QUERIES,
 } from "@/lib/api";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://roqet-production-b979.up.railway.app";
 
 // ---------------------------------------------------------------------------
 // Atoms

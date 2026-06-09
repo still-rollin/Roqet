@@ -267,12 +267,22 @@ servers like [rocq-mcp](https://github.com/LLM4Rocq) (which wrap `coqc`'s exact
 keyword `Search`).
 
 It's a **thin client** over the HTTP API above — point it at any running Roqet API
-(local or hosted) with `ROQET_API_URL`.
+with `ROQET_API_URL`. Use the hosted backend (no setup), or your own local one.
 
 ```bash
-pip install -r requirements-mcp.txt      # or: pip install -e ".[mcp]"
-ROQET_API_URL=http://localhost:8000 roqet-mcp     # stdio transport
+# Install the package (this is what provides the `roqet-mcp` command):
+pip install -e ".[mcp]"
+
+# Point at the hosted backend (recommended — nothing else to run):
+ROQET_API_URL=https://roqet-production-b979.up.railway.app roqet-mcp     # stdio transport
+
+# ...or at a backend you're running locally:
+ROQET_API_URL=http://localhost:8000 roqet-mcp
 ```
+
+> `pip install -r requirements-mcp.txt` installs only the dependencies (`mcp`,
+> `httpx`); it does **not** create the `roqet-mcp` command. Use `pip install -e ".[mcp]"`,
+> or run the module directly with `python -m roqet.mcp_server`.
 
 Tools exposed:
 - **`roqet_search(query, lib?, kind?, limit?)`** — semantic search; returns matching
@@ -281,9 +291,9 @@ Tools exposed:
 
 ### Register with a client
 
-Claude Code:
+Claude Code (point `ROQET_API_URL` at the hosted backend, or your local one):
 ```bash
-claude mcp add roqet --env ROQET_API_URL=http://localhost:8000 -- roqet-mcp
+claude mcp add roqet --env ROQET_API_URL=https://roqet-production-b979.up.railway.app -- roqet-mcp
 ```
 
 Claude Desktop (`claude_desktop_config.json`):
@@ -292,7 +302,7 @@ Claude Desktop (`claude_desktop_config.json`):
   "mcpServers": {
     "roqet": {
       "command": "roqet-mcp",
-      "env": { "ROQET_API_URL": "https://your-roqet.up.railway.app" }
+      "env": { "ROQET_API_URL": "https://roqet-production-b979.up.railway.app" }
     }
   }
 }
