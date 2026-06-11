@@ -140,6 +140,32 @@ benchmark.
 | Equal-weight dense+sparse fusion | 26% | 53% |
 | Cross-encoder rerank (ms-marco MiniLM) | regressed | regressed |
 
+### Premise-selection benchmark (automated, leakage-free)
+
+The 15-query set above is a directional gauge. The real benchmark is mined from
+proof scripts ([`roqet.mine_eval`](roqet/mine_eval.py)): for each proved theorem,
+the lemmas referenced in its proof body are its *premises* — declarations
+genuinely relevant to its statement. (statement → premises) is a leakage-free
+retrieval task (the proof body isn't indexed), and there are thousands of pairs
+for free. The set: **4,500 pairs**, balanced 1,500 each across stdlib/mathcomp/geocoq.
+
+Run it against the live pipeline (measures whatever ROQET_* config is set):
+
+```bash
+ROQET_EMBEDDER=fastembed python -m roqet.eval --limit 600
+```
+
+Baseline (fastembed dense + lexical rerank, same-library scope):
+
+| recall@5 | recall@10 | MRR@10 | MAP@10 | r@10 mathcomp / stdlib / geocoq |
+|:--------:|:---------:|:------:|:------:|:-------------------------------:|
+| 0.129 | 0.168 | 0.162 | 0.097 | 0.223 / 0.188 / 0.091 |
+
+Premise selection is intentionally hard (many premises are general-purpose and
+textually distant from the goal), so these are a floor to improve against, not a
+quality verdict — they make the Phase-2 levers (stronger model, tuned fusion,
+late interaction) measurable instead of guessed.
+
 Takeaways:
 - **Corpus coverage dominates.** Before pulling the full `rocq-prover/stdlib`
   (stdlib went 1.4k → 13.7k declarations), list/arith queries were unanswerable.
