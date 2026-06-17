@@ -16,6 +16,8 @@ GITHUB_BASES = {
     "hott": "https://github.com/HoTT/Coq-HoTT/blob/master/theories",
     "iris": "https://gitlab.mpi-sws.org/iris/iris/-/blob/master",
     "geocoq": "https://github.com/GeoCoq/GeoCoq/blob/master/theories",
+    "mathcomp-analysis": "https://github.com/math-comp/analysis/blob/master",
+
 }
 
 # Matches a GeoCoq chapter token in a file path, e.g. "Main/Tarski_dev/Ch12_parallel.v".

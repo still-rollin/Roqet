@@ -51,7 +51,7 @@ export async function getStats(): Promise<StatsResponse> {
   return res.json();
 }
 
-export const LIBRARIES = ["stdlib", "mathcomp", "geocoq", "unimath", "hott"] as const;
+export const LIBRARIES = ["stdlib", "mathcomp", "geocoq","mathcomp-analysis", "unimath", "hott"] as const;
 export type Library = typeof LIBRARIES[number];
 
 // GeoCoq Tarski_dev chapters (Ch02–Ch16). Used for the geocoq-only chapter filter.
@@ -72,6 +72,7 @@ export const LIBRARY_LABELS: Record<string, string> = {
   geocoq:   "GeoCoq",
   unimath:  "UniMath",
   hott:     "HoTT",
+  "mathcomp-analysis": "MathComp-Analysis",
 };
 
 export const EXAMPLE_QUERIES = [
