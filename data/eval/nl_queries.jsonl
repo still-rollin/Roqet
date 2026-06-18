@@ -1,0 +1,45 @@
+{"query": "addition of natural numbers is commutative", "gold": ["add_comm", "addnC"], "hint": "nat"}
+{"query": "addition is associative", "gold": ["add_assoc", "addnA"], "hint": "nat"}
+{"query": "multiplication is commutative", "gold": ["mul_comm", "mulnC"], "hint": "nat"}
+{"query": "multiplication distributes over addition", "gold": ["mul_add_distr_l", "mul_add_distr_r", "mulnDl", "mulnDr"], "hint": "nat"}
+{"query": "zero is the right identity for addition", "gold": ["add_0_r", "addn0"], "hint": "nat"}
+{"query": "zero added on the left leaves a number unchanged", "gold": ["add_0_l", "add0n"], "hint": "nat"}
+{"query": "the successor function is injective", "gold": ["succ_inj"], "hint": "nat"}
+{"query": "the successor of a number is never zero", "gold": ["neq_succ_0"], "hint": "nat"}
+{"query": "subtracting a number from itself gives zero", "gold": ["sub_diag", "subnn"], "hint": "nat"}
+{"query": "maximum is commutative", "gold": ["max_comm", "maxnC"], "hint": "nat"}
+{"query": "minimum is commutative", "gold": ["min_comm", "minnC"], "hint": "nat"}
+{"query": "less-or-equal is transitive", "gold": ["le_trans", "leq_trans"], "hint": "order"}
+{"query": "less-or-equal is reflexive", "gold": ["le_refl", "leqnn"], "hint": "order"}
+{"query": "strictly-less-than is transitive", "gold": ["lt_trans", "ltn_trans"], "hint": "order"}
+{"query": "equality of natural numbers is decidable", "gold": ["eq_dec"], "hint": "nat"}
+{"query": "appending the empty list on the right leaves it unchanged", "gold": ["app_nil_r", "cats0"], "hint": "list"}
+{"query": "appending the empty list on the left leaves it unchanged", "gold": ["app_nil_l", "cat0s"], "hint": "list"}
+{"query": "list concatenation is associative", "gold": ["app_assoc", "catA"], "hint": "list"}
+{"query": "reversing a list twice gives the original", "gold": ["rev_involutive", "revK"], "hint": "list"}
+{"query": "length of a concatenation is the sum of lengths", "gold": ["length_app", "size_cat"], "hint": "list"}
+{"query": "mapping a function over a concatenation of lists", "gold": ["map_app", "map_cat"], "hint": "list"}
+{"query": "membership in a concatenated list", "gold": ["in_app_iff", "in_app_or", "in_or_app", "mem_cat"], "hint": "list"}
+{"query": "the reverse of a concatenation", "gold": ["rev_app_distr", "rev_cat"], "hint": "list"}
+{"query": "boolean conjunction is commutative", "gold": ["andb_comm"], "hint": "bool"}
+{"query": "boolean disjunction is commutative", "gold": ["orb_comm"], "hint": "bool"}
+{"query": "a proposition is decidable", "gold": ["decidable", "dec"], "hint": "logic"}
+{"query": "double negation elimination (classical)", "gold": ["NNPP", "not_not"], "hint": "logic"}
+{"query": "addition in a ring is commutative", "gold": ["addrC"], "hint": "mathcomp"}
+{"query": "multiplication in a ring is associative", "gold": ["mulrA"], "hint": "mathcomp"}
+{"query": "a group element times its inverse is the identity", "gold": ["mulgV", "mulVg"], "hint": "mathcomp"}
+{"query": "the inverse of a product in a group", "gold": ["invMg", "invMG"], "hint": "mathcomp"}
+{"query": "boolean equality reflects equality on naturals", "gold": ["eqnP"], "hint": "mathcomp"}
+{"query": "size of a concatenation of sequences", "gold": ["size_cat"], "hint": "mathcomp"}
+{"query": "betweenness is symmetric", "gold": ["between_symmetry"], "hint": "geocoq"}
+{"query": "congruence of segments is symmetric", "gold": ["cong_symmetry"], "hint": "geocoq"}
+{"query": "congruence of segments is transitive", "gold": ["cong_transitivity"], "hint": "geocoq"}
+{"query": "the symmetric point of a point is unique", "gold": ["symmetric_point_uniqueness"], "hint": "geocoq"}
+{"query": "betweenness implies collinearity", "gold": ["bet_col"], "hint": "geocoq"}
+{"query": "congruence is reflexive", "gold": ["cong_reflexivity"], "hint": "geocoq"}
+{"query": "collinearity is preserved under permutation of points", "gold": ["col_permutation_1", "col_permutation_2"], "hint": "geocoq"}
+{"query": "the midpoint of two points exists", "gold": ["midpoint_existence", "l7_25"], "hint": "geocoq"}
+{"query": "the integral of a nonnegative function is nonnegative", "gold": ["integral_ge0"], "hint": "analysis"}
+{"query": "the limit of a sum is the sum of the limits", "gold": ["cvgD", "limD"], "hint": "analysis"}
+{"query": "a sequence has at most one limit", "gold": ["cvg_unique"], "hint": "analysis"}
+{"query": "the integral is additive over functions", "gold": ["integralD", "integral_setU"], "hint": "analysis"}
