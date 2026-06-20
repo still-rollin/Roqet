@@ -13,3 +13,8 @@ data/qdrant_storage/
 repos/
 *.log
 files.zip
+
+# Build artifacts: the deploy dataset is generated (scripts/build_dataset.sh)
+# and distributed via GitHub Releases, not committed. See docs/DATA.md.
+deploy/*.jsonl
+!deploy/.gitkeep
