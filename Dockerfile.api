@@ -12,7 +12,6 @@ COPY requirements-api.txt .
 RUN pip install --no-cache-dir -r requirements-api.txt
 
 COPY roqet ./roqet
-COPY api.py ./api.py
 
 ENV ROQET_EMBEDDER=fastembed \
     FASTEMBED_CACHE_PATH=/app/.cache/fastembed

@@ -9,7 +9,6 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY roqet ./roqet
-COPY api.py ./api.py
 
 EXPOSE 8000
 CMD ["uvicorn", "roqet.api:app", "--host", "0.0.0.0", "--port", "8000"]
