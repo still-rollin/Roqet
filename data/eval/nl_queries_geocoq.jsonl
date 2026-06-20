@@ -1,0 +1,26 @@
+{"query": "betweenness is symmetric", "gold": ["between_symmetry", "Bet_sym"], "hint": "bet"}
+{"query": "if a point is between two others then it is also between them in reverse order", "gold": ["between_symmetry", "Bet_sym"], "hint": "bet"}
+{"query": "betweenness implies the three points are collinear", "gold": ["bet_col"], "hint": "bet"}
+{"query": "betweenness is decidable", "gold": ["bet_dec"], "hint": "dec"}
+{"query": "a point is trivially between two equal endpoints", "gold": ["between_trivial", "between_trivial2"], "hint": "bet"}
+{"query": "congruence of segments is symmetric", "gold": ["cong_symmetry", "cong_sym"], "hint": "cong"}
+{"query": "congruence of segments is transitive", "gold": ["cong_transitivity"], "hint": "cong"}
+{"query": "congruence of segments is reflexive", "gold": ["cong_reflexivity"], "hint": "cong"}
+{"query": "congruence is preserved when swapping the endpoints of both segments", "gold": ["cong_commutativity"], "hint": "cong"}
+{"query": "congruence of segments is decidable", "gold": ["cong_dec"], "hint": "dec"}
+{"query": "collinearity is invariant under permutation of the points", "gold": ["col_permutation_1", "col_permutation_2", "col_permutation_3", "col_permutation_4", "col_permutation_5", "Col_perm"], "hint": "col"}
+{"query": "collinearity is decidable", "gold": ["col_dec"], "hint": "dec"}
+{"query": "any point is collinear with a repeated point", "gold": ["col_trivial_1", "col_trivial_2", "col_trivial_3"], "hint": "col"}
+{"query": "equality of points is decidable", "gold": ["eq_dec_points"], "hint": "dec"}
+{"query": "the midpoint of two points exists", "gold": ["midpoint_existence", "l7_25"], "hint": "midpoint"}
+{"query": "the midpoint lies between the two endpoints", "gold": ["midpoint_bet"], "hint": "midpoint"}
+{"query": "the midpoint is collinear with the two endpoints", "gold": ["midpoint_col"], "hint": "midpoint"}
+{"query": "the midpoint is equidistant from both endpoints", "gold": ["midpoint_cong"], "hint": "midpoint"}
+{"query": "the midpoint relation is symmetric in its two endpoints", "gold": ["l7_2"], "hint": "midpoint"}
+{"query": "the symmetric point of a point about a center is unique", "gold": ["symmetric_point_uniqueness"], "hint": "sym"}
+{"query": "the reflection of a point across a center point exists", "gold": ["symmetric_point_construction"], "hint": "sym"}
+{"query": "perpendicularity of two lines is symmetric", "gold": ["perp_sym"], "hint": "perp"}
+{"query": "a right angle stays a right angle when its rays are reversed", "gold": ["l8_2"], "hint": "perp"}
+{"query": "parallelism of lines is symmetric", "gold": ["par_symmetry", "lemma_parallelsymmetric"], "hint": "par"}
+{"query": "parallelism of lines is transitive", "gold": ["par_trans"], "hint": "par"}
+{"query": "parallelism is reflexive for a nondegenerate line", "gold": ["par_reflexivity"], "hint": "par"}

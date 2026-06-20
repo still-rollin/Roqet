@@ -79,6 +79,7 @@ def normalize_declaration(raw: dict[str, Any]) -> dict[str, Any]:
         "type_signature": compact_ws(str(raw.get("type_signature") or raw.get("type") or "")),
         "statement": compact_ws(str(raw.get("statement") or "")),
         "docstring": compact_ws(str(raw.get("docstring") or raw.get("doc") or "")),
+        "nl_description": compact_ws(str(raw.get("nl_description") or "")),
         "module_path": str(raw.get("module_path") or raw.get("module") or ""),
         "library": library,
         "file_path": file_path,
@@ -98,6 +99,7 @@ def derive_chapter(file_path: str) -> str:
 def declaration_text(raw: dict[str, Any]) -> str:
     d = normalize_declaration(raw)
     parts = [
+        d.get("nl_description", ""),
         f"{d['kind']} {d['name']}",
         d["type_signature"],
         d["docstring"],
