@@ -30,10 +30,13 @@ app = FastAPI(
     description="Semantic search over Rocq/Coq mathematical libraries",
     version="0.1.0",
 )
+# Public, read-only search API: default to permissive CORS so any client (the
+# UI, MCP servers, notebooks) can call it. Restrict to specific origins in
+# production by setting CORS_ORIGINS (comma-separated). Only GET is exposed.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=os.environ.get("CORS_ORIGINS", "*").split(","),
-    allow_methods=["*"],
+    allow_methods=["GET"],
     allow_headers=["*"],
 )
 
