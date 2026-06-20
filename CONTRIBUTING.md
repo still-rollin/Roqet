@@ -35,8 +35,7 @@ cd web && npx tsc --noEmit         # frontend typecheck (if UI changed)
 
 - **Schema** is canonical in `rocqet/schema.py` — extend `normalize_declaration`
   rather than reading raw fields elsewhere.
-- **Env vars** use the `ROCQET_` prefix (legacy `ROQET_` is mapped for
-  back-compat in `rocqet/__init__.py`; don't add new `ROQET_` names).
+- **Env vars** use the `ROCQET_` prefix.
 - **Indexing is zero-downtime**: point ids are deterministic (`stable_id`), so
   re-indexing upserts in place. Never `--reset` a live remote collection; use
   `--prune` (see `scripts/index_cloud.sh`).
