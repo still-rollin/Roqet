@@ -139,7 +139,8 @@ def split_is_test(decl: dict, test_frac: float) -> bool:
     return (int(h[:8], 16) % 1000) < int(test_frac * 1000)
 
 
-def build(records: list[dict], k: int, test_frac: float):
+def build(records: list[dict], k: int, test_frac: float, holdout_clusters: set[str] | None = None):
+    holdout_clusters = holdout_clusters or set()
     decls = [normalize_declaration(r) for r in records]
     # Index by (library, stem) for negative mining; collect look-alikes separately
     # (their stem is "characterization"/"postulate", so they need explicit injection).
@@ -153,14 +154,19 @@ def build(records: list[dict], k: int, test_frac: float):
         if "characterization" in nm or "postulate" in nm:
             lookalikes.append(d)
 
+    def is_test(d: dict) -> bool:
+        # A decl whose cluster holds an eval gold is FORCED to test, so the
+        # NL-eval the fine-tune is scored on never appears (even as a twin) in train.
+        return cluster_key(d) in holdout_clusters or split_is_test(d, test_frac)
+
     train, test, real_q = [], [], 0
     for d in decls:
         query, is_real = make_query(d)
         real_q += is_real
         negs = mine_hard_negatives(d, by_stem, lookalikes, k)
         # Keep negatives on the same side of the split as the anchor (no leakage).
-        anchor_test = split_is_test(d, test_frac)
-        negs = [n for n in negs if split_is_test(n, test_frac) == anchor_test]
+        anchor_test = is_test(d)
+        negs = [n for n in negs if is_test(n) == anchor_test]
         row = {
             "query": query,
             "positive": declaration_text(d),
@@ -174,14 +180,30 @@ def build(records: list[dict], k: int, test_frac: float):
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--input", type=Path, default=Path("deploy/declarations.enriched.jsonl"))
+    ap.add_argument("--input", type=Path, default=Path("data/declarations.mathcomp.ship.jsonl"))
     ap.add_argument("--out-dir", type=Path, default=Path("data/finetune"))
     ap.add_argument("--negatives", type=int, default=5)
     ap.add_argument("--test-frac", type=float, default=0.15)
+    ap.add_argument("--holdout-eval", type=Path, default=None,
+                    help="NL eval file (gold names). Their clusters are forced out of train "
+                         "so the post-finetune eval is leakage-free.")
     args = ap.parse_args(argv)
 
     records = [json.loads(line) for line in args.input.open(encoding="utf-8") if line.strip()]
-    train, test, real_q = build(records, args.negatives, args.test_frac)
+
+    holdout_clusters: set[str] = set()
+    if args.holdout_eval and args.holdout_eval.exists():
+        gold = set()
+        for line in args.holdout_eval.open(encoding="utf-8"):
+            if line.strip():
+                gold.update(json.loads(line).get("gold", []))
+        for r in records:
+            d = normalize_declaration(r)
+            if d["name"] in gold:
+                holdout_clusters.add(cluster_key(d))
+        print(f"holdout         : {len(gold):,} eval golds -> {len(holdout_clusters):,} clusters forced to test")
+
+    train, test, real_q = build(records, args.negatives, args.test_frac, holdout_clusters)
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
     for name, rows in (("train", train), ("test", test)):
