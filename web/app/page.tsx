@@ -2,14 +2,15 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import {
-  Search, Loader2, ExternalLink, ChevronDown, X, Copy, Check, GitBranch,
+  Search, Loader2, ExternalLink, ChevronDown, X, Copy, Check, GitBranch, Sparkles,
 } from "lucide-react";
 import {
   searchDeclarations,
   getStats,
   SearchResult,
   StatsResponse,
-  LIBRARIES,
+  ACTIVE_LIBRARIES,
+  COMING_SOON_LIBRARIES,
   KINDS,
   LIBRARY_LABELS,
   GEOCOQ_CHAPTERS,
@@ -21,6 +22,18 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://roqet-production-b97
 // ---------------------------------------------------------------------------
 // Atoms
 // ---------------------------------------------------------------------------
+function ComingSoonBanner() {
+  return (
+    <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-3.5 py-1.5 text-xs text-[var(--muted)]">
+      <Sparkles size={13} className="text-[var(--accent,#7c93ff)]" />
+      <span>
+        <span className="text-[var(--text)] font-medium">MathComp</span> is live —
+        GeoCoq, Stdlib &amp; more libraries coming soon.
+      </span>
+    </div>
+  );
+}
+
 function KindBadge({ kind }: { kind: string }) {
   const key = kind.split(" ").pop() ?? kind;
   return <span className={`kind-badge kind-${key}`}>{kind}</span>;
@@ -261,6 +274,7 @@ export default function Home() {
                   .join(" · ")}
               </p>
             )}
+            <ComingSoonBanner />
           </div>
         )}
 
@@ -297,7 +311,12 @@ export default function Home() {
             aria-label="Filter by library"
           >
             <option value="">All libraries</option>
-            {LIBRARIES.map(l => <option key={l} value={l}>{LIBRARY_LABELS[l]}</option>)}
+            {ACTIVE_LIBRARIES.map(l => <option key={l} value={l}>{LIBRARY_LABELS[l]}</option>)}
+            <optgroup label="Coming soon">
+              {COMING_SOON_LIBRARIES.map(l => (
+                <option key={l} value={l} disabled>{LIBRARY_LABELS[l] ?? l}</option>
+              ))}
+            </optgroup>
           </select>
           <select
             value={filterKind}

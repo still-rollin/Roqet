@@ -54,6 +54,11 @@ export async function getStats(): Promise<StatsResponse> {
 export const LIBRARIES = ["stdlib", "mathcomp", "geocoq","mathcomp-analysis", "unimath", "hott"] as const;
 export type Library = typeof LIBRARIES[number];
 
+// Currently indexed & searchable. We only ship a library once it has high-quality
+// natural-language descriptions (MathComp is first). The rest are rolling out.
+export const ACTIVE_LIBRARIES = ["mathcomp"] as const;
+export const COMING_SOON_LIBRARIES = ["stdlib", "mathcomp-analysis", "geocoq"] as const;
+
 // GeoCoq Tarski_dev chapters (Ch02–Ch16). Used for the geocoq-only chapter filter.
 export const GEOCOQ_CHAPTERS = [
   "Ch02", "Ch03", "Ch04", "Ch05", "Ch06", "Ch07", "Ch08", "Ch09",
@@ -76,12 +81,12 @@ export const LIBRARY_LABELS: Record<string, string> = {
 };
 
 export const EXAMPLE_QUERIES = [
-  "commutativity of addition on natural numbers",
-  "list concatenation associativity",
-  "betweenness is symmetric",
-  "midpoint of a segment is unique",
-  "decidable equality",
-  "group homomorphism preserves identity",
-  "transitivity of less-than relation",
-  "functional extensionality",
+  "multiplication in a ring is associative",
+  "a group homomorphism maps the identity to the identity",
+  "the determinant of a product is the product of determinants",
+  "convert a row vector into a polynomial",
+  "every finite integral domain is a field",
+  "the order of an element divides the order of the group",
+  "polynomial evaluation is a ring morphism",
+  "the gcd divides both of its arguments",
 ];
