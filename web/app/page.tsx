@@ -232,7 +232,7 @@ export default function Home() {
           Rocqet
         </button>
         <a
-          href="https://github.com/still-rollin/Rocqet"
+          href="https://github.com/LLM4Rocq/rocqet-search"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-1.5 text-sm text-[var(--muted)] hover:text-[var(--text)] border border-[var(--border)] hover:border-[var(--border-strong)] rounded-lg px-3 py-1.5 transition-colors"
@@ -366,7 +366,7 @@ export default function Home() {
   -- rocqet-mcp`}</pre>
               <p className="text-[11px] text-[var(--muted2)] mt-2 text-center">
                 Exposes semantic search as agent tools. See the{" "}
-                <a href="https://github.com/still-rollin/Rocqet#mcp-server" target="_blank" rel="noopener noreferrer" className="text-[var(--accent)] hover:underline">README</a>.
+                <a href="https://github.com/LLM4Rocq/rocqet-search#mcp-server" target="_blank" rel="noopener noreferrer" className="text-[var(--accent)] hover:underline">README</a>.
               </p>
             </details>
           </div>
