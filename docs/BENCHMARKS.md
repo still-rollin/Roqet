@@ -88,3 +88,64 @@ ROCQET_COLLECTION=rocqet_mc_ship ROCQET_EMBEDDER=fastembed \
 
 The description corpus (`data/mathcomp-natural-lang.json`) and generated datasets
 are distributed as release assets, not committed (see [DATA.md](DATA.md)).
+
+---
+
+## 2. Does a domain fine-tune add to the descriptions? (2026-07)
+
+**Context.** Descriptions fixed the *missing-surface* problem (§1): the right
+neighborhood now lands in the top-10 (hit@10 0.85). What they don't fully fix is
+*discrimination* — for a short query the exact lemma isn't always #1 (hit@1 ≈ 0.35),
+because a generic model still weights the concept noun over the relation
+(`same_env` vs `same_env_sym`, `eval` vs `eval_tsubst`).
+
+**Question.** Does a small contrastive fine-tune with hard negatives — on top of the
+descriptions — push the exact lemma up (hit@1 / MRR), without a bigger/heavier model?
+
+### Methodology
+
+- **Model.** Fine-tune `all-MiniLM-L6-v2` (384-d, the served model) with
+  `MultipleNegativesRankingLoss`; base unchanged so serving is unchanged.
+- **Data.** `rocqet.finetune` pairs: anchor = NL description, positive = the
+  declaration, **hard negatives = same concept-stem / different relation** (the
+  model's actual confusions). ~16k train rows, 65% with hard negatives.
+- **Leakage control.** `--holdout-eval` forces every eval gold's *cluster* out of
+  training (verified **0 of 292** eval golds leak into train).
+- **Fair A/B.** Both indexes = the same enriched (ship) corpus, both via the `local`
+  embedder, same 292 held-out paraphrase queries. Only the weights differ.
+
+### Results (292 queries)
+
+| index (same enriched corpus) | hit@1 | hit@5 | hit@10 | MRR@10 |
+|---|---|---|---|---|
+| base all-MiniLM (descriptions only) | 0.377 | 0.723 | 0.839 | 0.523 |
+| **+ contrastive fine-tune** | **0.452** | **0.767** | **0.873** | **0.592** |
+
+**Fine-tune lift on top of descriptions:** hit@1 **+20%** (0.377 → 0.452), MRR
+**+13%** (0.523 → 0.592), hit@10 +4% (already near-saturated by descriptions). The
+gain concentrates exactly where predicted — **reordering within the right
+neighborhood to pin the exact lemma at #1** — which is what hit@1 / MRR measure.
+
+### Full progression (honest paraphrase queries, hit@10 / hit@1 / MRR)
+
+| stage | hit@1 | hit@10 | MRR@10 |
+|---|---|---|---|
+| baseline (no descriptions) | 0.065 | 0.205 | 0.116 |
+| + NL descriptions (shipped) | 0.377 | 0.839 | 0.523 |
+| + domain fine-tune | **0.452** | **0.873** | **0.592** |
+
+Two independent, measured wins: descriptions (~4× recall) and a lightweight
+domain fine-tune (+20% exact-match), both leakage-controlled on held-out queries.
+
+### Reproduce
+
+```bash
+python -m rocqet.finetune --input data/declarations.mathcomp.ship.jsonl \
+  --holdout-eval data/eval/nl_queries_mathcomp_q.jsonl        # build train/test
+python scripts/train_embed.py --train data/finetune/train.jsonl --out models/rocqet-embed
+./scripts/eval_finetune.sh                                     # base vs tuned A/B
+```
+
+See [FINETUNE.md](FINETUNE.md) for the full pipeline. Production still serves the
+description-only index; shipping the fine-tuned weights (ONNX → fastembed) is the
+next step, gated on this win.
