@@ -27,7 +27,7 @@ function ComingSoonBanner() {
     <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-3.5 py-1.5 text-xs text-[var(--muted)]">
       <Sparkles size={13} className="text-[var(--accent,#7c93ff)]" />
       <span>
-        <span className="text-[var(--text)] font-medium">MathComp</span> is live —
+        <span className="text-[var(--text)] font-medium">MathComp </span> is live —
         GeoCoq, Stdlib &amp; more libraries coming soon.
       </span>
     </div>
