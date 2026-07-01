@@ -64,15 +64,16 @@ descriptions lifts every metric **~4–5×** — hit@10 **0.205 → 0.853**, hit
 > that are embedded in the docs, so query and doc share a common ancestor — the
 > absolute numbers here are an optimistic (semi-circular) upper bound. §2 introduces
 > a **circularity-free** eval (queries generated from the formal statement only); on
-> it, descriptions still lift hit@10 to **0.636** from a 0.205 baseline — that is the
-> honest headline for the descriptions win.
+> it the descriptions index scores **0.636 hit@10** — the honest headline for the
+> descriptions win.
 
 ### Takeaways
 
 - The MathComp weakness was a **missing natural-language surface**, not an
   extraction or ranking bug. Descriptions supply exactly that surface.
-- The win survives the **circularity-free** independent eval (§2): hit@10
-  0.205 → 0.636. The paraphrase numbers above are the optimistic ceiling.
+- The win survives the **circularity-free** independent eval (§2): the descriptions
+  index scores 0.636 hit@10 on honest queries. The paraphrase numbers above are the
+  optimistic ceiling.
 - Same recipe should transfer to the other libraries once they have comparable
   descriptions.
 
@@ -151,15 +152,21 @@ so the model specialized to description phrasing rather than learning transferab
 discrimination. **We do not ship this fine-tune.** Good that the independent eval
 caught it before shipping.
 
-**What *did* hold up:** descriptions. Even on the independent, circularity-free
-queries, they lift hit@10 from a no-description baseline of **0.205 → 0.636** — a real
-retrieval win, not an eval artifact. That's the shipped result.
+**What *did* hold up:** descriptions. On the independent, circularity-free queries the
+descriptions index scores **0.636 hit@10 / 0.237 hit@1** — a strong result on genuinely
+independent queries, and the shipped system.
 
-| stage | independent hit@1 | independent hit@10 | independent MRR |
-|---|---|---|---|
-| baseline (no descriptions) | ~0.03 | 0.205 | ~0.09 |
-| + NL descriptions (shipped) | **0.237** | **0.636** | **0.364** |
-| + domain fine-tune (not shipped) | 0.220 | 0.615 | 0.341 |
+| query set | index | hit@1 | hit@10 | MRR@10 |
+|---|---|---|---|---|
+| independent (honest) | + descriptions (all-MiniLM) | **0.237** | **0.636** | **0.364** |
+| independent (honest) | + fine-tune | 0.220 | 0.615 | 0.341 |
+
+> **Caveat on the descriptions *lift*.** The no-description baseline was only measured
+> on the *paraphrase* set (hit@10 0.205). We have not yet run the no-description index
+> on the *independent* set, so we do **not** quote a cross-set "0.205 → 0.636" lift —
+> that would mix query distributions. The clean same-set baseline is a pending run.
+> What is solid: 0.636 hit@10 with descriptions on honest queries, and the fine-tune
+> not beating it.
 
 ### Next: fine-tune v2 (if pursued)
 
