@@ -71,9 +71,9 @@ descriptions lifts every metric **~4–5×** — hit@10 **0.205 → 0.853**, hit
 
 - The MathComp weakness was a **missing natural-language surface**, not an
   extraction or ranking bug. Descriptions supply exactly that surface.
-- The win survives the **circularity-free** independent eval (§2): the descriptions
-  index scores 0.636 hit@10 on honest queries. The paraphrase numbers above are the
-  optimistic ceiling.
+- The win survives the **circularity-free** independent eval (§2): hit@10
+  0.292 → 0.636 (~2.2×), same model and query set. The paraphrase numbers above are
+  the optimistic (semi-circular) ceiling.
 - Same recipe should transfer to the other libraries once they have comparable
   descriptions.
 
@@ -152,21 +152,19 @@ so the model specialized to description phrasing rather than learning transferab
 discrimination. **We do not ship this fine-tune.** Good that the independent eval
 caught it before shipping.
 
-**What *did* hold up:** descriptions. On the independent, circularity-free queries the
-descriptions index scores **0.636 hit@10 / 0.237 hit@1** — a strong result on genuinely
-independent queries, and the shipped system.
+**What *did* hold up:** descriptions. Measured cleanly on the independent set — same
+model (all-MiniLM), same corpus size, descriptions the only variable:
 
-| query set | index | hit@1 | hit@10 | MRR@10 |
-|---|---|---|---|---|
-| independent (honest) | + descriptions (all-MiniLM) | **0.237** | **0.636** | **0.364** |
-| independent (honest) | + fine-tune | 0.220 | 0.615 | 0.341 |
+| query set | index | hit@1 | hit@5 | hit@10 | MRR@10 |
+|---|---|---|---|---|---|
+| independent (honest) | no descriptions | 0.096 | 0.227 | 0.292 | 0.160 |
+| independent (honest) | **+ descriptions** | **0.237** | **0.512** | **0.636** | **0.364** |
+| independent (honest) | + fine-tune | 0.220 | 0.485 | 0.615 | 0.341 |
 
-> **Caveat on the descriptions *lift*.** The no-description baseline was only measured
-> on the *paraphrase* set (hit@10 0.205). We have not yet run the no-description index
-> on the *independent* set, so we do **not** quote a cross-set "0.205 → 0.636" lift —
-> that would mix query distributions. The clean same-set baseline is a pending run.
-> What is solid: 0.636 hit@10 with descriptions on honest queries, and the fine-tune
-> not beating it.
+**Honest descriptions lift (circularity-free, same query set):** hit@10 **0.292 →
+0.636 (~2.2×)**, hit@1 0.096 → 0.237 (~2.5×), MRR 0.160 → 0.364. Smaller than the
+paraphrase set's ~4× (that set is semi-circular and inflates it), but real and
+defensible. This is the shipped system. The fine-tune does not beat it.
 
 ### Next: fine-tune v2 (if pursued)
 
@@ -180,10 +178,12 @@ style. Until then the description-only index is the honest production system.
 ```bash
 # independent (honest) eval set — queries generated from statements, not descriptions
 GEMINI_API_KEYS=key1,key2 python scripts/make_indep_eval.py
-ROCQET_COLLECTION=rocqet_mc_base_local EMBED_MODEL=sentence-transformers/all-MiniLM-L6-v2 \
-  ROCQET_EMBEDDER=local python -m rocqet.eval --eval-type nl --eval data/eval/nl_queries_mathcomp_indep.jsonl
-ROCQET_COLLECTION=rocqet_mc_tuned EMBED_MODEL=models/rocqet-embed \
-  ROCQET_EMBEDDER=local python -m rocqet.eval --eval-type nl --eval data/eval/nl_queries_mathcomp_indep.jsonl
+# index the three variants (local embedder) into throwaway collections, then eval each:
+#   no descriptions  : --input data/declarations.mathcomp.base.jsonl  EMBED_MODEL=...all-MiniLM-L6-v2
+#   + descriptions   : --input data/declarations.mathcomp.ship.jsonl  EMBED_MODEL=...all-MiniLM-L6-v2
+#   + fine-tune      : --input data/declarations.mathcomp.ship.jsonl  EMBED_MODEL=models/rocqet-embed
+ROCQET_COLLECTION=<coll> EMBED_MODEL=<model> ROCQET_EMBEDDER=local \
+  python -m rocqet.eval --eval-type nl --eval data/eval/nl_queries_mathcomp_indep.jsonl
 ```
 
 See [FINETUNE.md](FINETUNE.md) for the training pipeline. Production serves the
