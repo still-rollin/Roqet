@@ -60,12 +60,19 @@ descriptions lifts every metric **~4–5×** — hit@10 **0.205 → 0.853**, hit
 | order | 11/14 |
 | solvable | 23/25 |
 
+> **Honesty note.** These paraphrase queries are rewrites of the same descriptions
+> that are embedded in the docs, so query and doc share a common ancestor — the
+> absolute numbers here are an optimistic (semi-circular) upper bound. §2 introduces
+> a **circularity-free** eval (queries generated from the formal statement only); on
+> it, descriptions still lift hit@10 to **0.636** from a 0.205 baseline — that is the
+> honest headline for the descriptions win.
+
 ### Takeaways
 
 - The MathComp weakness was a **missing natural-language surface**, not an
   extraction or ranking bug. Descriptions supply exactly that surface.
-- The gain holds under a genuinely held-out, identifier-free, reworded query set,
-  so it reflects real user phrasings — not memorized text.
+- The win survives the **circularity-free** independent eval (§2): hit@10
+  0.205 → 0.636. The paraphrase numbers above are the optimistic ceiling.
 - Same recipe should transfer to the other libraries once they have comparable
   descriptions.
 
@@ -112,40 +119,65 @@ descriptions — push the exact lemma up (hit@1 / MRR), without a bigger/heavier
 - **Leakage control.** `--holdout-eval` forces every eval gold's *cluster* out of
   training (verified **0 of 292** eval golds leak into train).
 - **Fair A/B.** Both indexes = the same enriched (ship) corpus, both via the `local`
-  embedder, same 292 held-out paraphrase queries. Only the weights differ.
+  embedder, same held-out queries. Only the weights differ.
 
-### Results (292 queries)
+### Two query sets — and why the second one matters
 
-| index (same enriched corpus) | hit@1 | hit@5 | hit@10 | MRR@10 |
-|---|---|---|---|---|
-| base all-MiniLM (descriptions only) | 0.377 | 0.723 | 0.839 | 0.523 |
-| **+ contrastive fine-tune** | **0.452** | **0.767** | **0.873** | **0.592** |
+- **Paraphrase queries** (`nl_queries_mathcomp_q.jsonl`): the description rewritten
+  short (§1). *Circular*: the query and the doc's embedded description share a common
+  ancestor (the description), so a model that learns "description style" is flattered.
+- **Independent queries** (`nl_queries_mathcomp_indep.jsonl`, `make_indep_eval.py`):
+  the LLM sees **only the formal Coq statement** — never the description or the name —
+  and writes a query. Query and embedded description are now *independent* renderings
+  of the same lemma. This is the honest NL→lemma test; the fine-tune was **never
+  trained on this distribution**.
 
-**Fine-tune lift on top of descriptions:** hit@1 **+20%** (0.377 → 0.452), MRR
-**+13%** (0.523 → 0.592), hit@10 +4% (already near-saturated by descriptions). The
-gain concentrates exactly where predicted — **reordering within the right
-neighborhood to pin the exact lemma at #1** — which is what hit@1 / MRR measure.
+### Results
 
-### Full progression (honest paraphrase queries, hit@10 / hit@1 / MRR)
+| query set | index | hit@1 | hit@5 | hit@10 | MRR@10 |
+|---|---|---|---|---|---|
+| paraphrase (circular) | base (desc only) | 0.377 | 0.723 | 0.839 | 0.523 |
+| paraphrase (circular) | + fine-tune | 0.452 | 0.767 | 0.873 | 0.592 |
+| **independent** (honest) | base (desc only) | **0.237** | 0.512 | **0.636** | 0.364 |
+| **independent** (honest) | + fine-tune | 0.220 | 0.485 | 0.615 | 0.341 |
 
-| stage | hit@1 | hit@10 | MRR@10 |
+### Verdict — fine-tune did NOT generalize (and the paraphrase gain was an artifact)
+
+On the **circular** paraphrase set the fine-tune looked like a +20% hit@1 win. On the
+**independent** set that gain **disappears** — the tuned model is neutral-to-slightly
+worse (hit@1 0.237 → 0.220). Cause: the training anchors were the descriptions, and
+the paraphrase queries are rewrites of those same descriptions — same distribution —
+so the model specialized to description phrasing rather than learning transferable
+discrimination. **We do not ship this fine-tune.** Good that the independent eval
+caught it before shipping.
+
+**What *did* hold up:** descriptions. Even on the independent, circularity-free
+queries, they lift hit@10 from a no-description baseline of **0.205 → 0.636** — a real
+retrieval win, not an eval artifact. That's the shipped result.
+
+| stage | independent hit@1 | independent hit@10 | independent MRR |
 |---|---|---|---|
-| baseline (no descriptions) | 0.065 | 0.205 | 0.116 |
-| + NL descriptions (shipped) | 0.377 | 0.839 | 0.523 |
-| + domain fine-tune | **0.452** | **0.873** | **0.592** |
+| baseline (no descriptions) | ~0.03 | 0.205 | ~0.09 |
+| + NL descriptions (shipped) | **0.237** | **0.636** | **0.364** |
+| + domain fine-tune (not shipped) | 0.220 | 0.615 | 0.341 |
 
-Two independent, measured wins: descriptions (~4× recall) and a lightweight
-domain fine-tune (+20% exact-match), both leakage-controlled on held-out queries.
+### Next: fine-tune v2 (if pursued)
+
+The fine-tune needs **diverse anchors**, not just descriptions, to generalize:
+statement-derived queries (like the independent eval), the 1,500 real premise pairs,
+and short/terse query forms — so it learns discrimination independent of one phrasing
+style. Until then the description-only index is the honest production system.
 
 ### Reproduce
 
 ```bash
-python -m rocqet.finetune --input data/declarations.mathcomp.ship.jsonl \
-  --holdout-eval data/eval/nl_queries_mathcomp_q.jsonl        # build train/test
-python scripts/train_embed.py --train data/finetune/train.jsonl --out models/rocqet-embed
-./scripts/eval_finetune.sh                                     # base vs tuned A/B
+# independent (honest) eval set — queries generated from statements, not descriptions
+GEMINI_API_KEYS=key1,key2 python scripts/make_indep_eval.py
+ROCQET_COLLECTION=rocqet_mc_base_local EMBED_MODEL=sentence-transformers/all-MiniLM-L6-v2 \
+  ROCQET_EMBEDDER=local python -m rocqet.eval --eval-type nl --eval data/eval/nl_queries_mathcomp_indep.jsonl
+ROCQET_COLLECTION=rocqet_mc_tuned EMBED_MODEL=models/rocqet-embed \
+  ROCQET_EMBEDDER=local python -m rocqet.eval --eval-type nl --eval data/eval/nl_queries_mathcomp_indep.jsonl
 ```
 
-See [FINETUNE.md](FINETUNE.md) for the full pipeline. Production still serves the
-description-only index; shipping the fine-tuned weights (ONNX → fastembed) is the
-next step, gated on this win.
+See [FINETUNE.md](FINETUNE.md) for the training pipeline. Production serves the
+description-only index; the fine-tune is **not** shipped (did not generalize).
