@@ -47,11 +47,15 @@ through a FastAPI backend, and presents results in a Next.js UI.
   lexical RRF rerank and `library` / `kind` / `chapter` filters.
 - **Rule-based enrichment** — fills missing docstrings and deduplicates
   declarations across libraries.
-- **Offline NL descriptions** *(optional, index-time only)* — generate one-line
-  plain-English summaries to embed alongside the formal text. Serving stays
-  **LLM-free**.
-- **Measured quality** — premise-selection and NL-query benchmarks
-  (`rocqet.eval`); see [SEARCH.md](SEARCH.md).
+- **NL descriptions = the big quality lever** *(index-time only, serving stays
+  LLM-free)* — embedding a one-sentence plain-English description alongside each
+  declaration is what makes terse, notation-heavy libraries searchable. On MathComp
+  it lifts hit@10 **0.292 → 0.636 (~2.2×)** on a circularity-free eval — see
+  [docs/BENCHMARKS.md](docs/BENCHMARKS.md).
+- **Measured quality, honestly** — premise-selection + NL-query benchmarks
+  (`rocqet.eval`), with a circularity-free eval that even caught (and rejected) an
+  inflated fine-tune result. See [docs/BENCHMARKS.md](docs/BENCHMARKS.md) and
+  [SEARCH.md](SEARCH.md).
 - **MCP server** — expose search as a tool for LLM agents (see below).
 - **Clean search UI** — debounced search, filters, score bars, and direct
   "View source" links to GitHub.
@@ -483,12 +487,15 @@ rocqet/                  Python package
   rerank.py             Lexical/RRF reranking
   describe.py           Offline NL-description generator (index-time only)
   eval.py, mine_eval.py Retrieval benchmarks
+  finetune.py           Contrastive training-data builder (pairs + hard negatives)
   mcp_server.py         MCP server (thin HTTP client over the API)
 web/                    Next.js app (app/, lib/api.ts, public/, configs)
 fixtures/seed/          Offline demo corpus (committed)
-scripts/                build_dataset.sh, build_index.sh, index_cloud.sh, …
+scripts/                build_dataset.sh, attach_mathcomp_nl.py, make_indep_eval.py, train_embed.py, …
 tests/                  pytest suite
 docs/DATA.md            How to obtain/build the dataset
+docs/BENCHMARKS.md      Measured retrieval quality (descriptions + fine-tune)
+docs/FINETUNE.md        rocqet-embed fine-tuning pipeline
 data/, deploy/*.jsonl   Generated artifacts (gitignored)
 Dockerfile*, docker-compose.yml, railway.toml, deploy.sh
 README.md, DEPLOY.md, SEARCH.md, CONTRIBUTING.md
@@ -535,6 +542,11 @@ The fetch helper knows about:
 | `unimath` | UniMath | UniMath/UniMath |
 | `hott` | HoTT | HoTT/Coq-HoTT |
 
-The deployed corpus currently indexes `stdlib`, `mathcomp`, `mathcomp-analysis`,
-and `geocoq` (see [docs/DATA.md](docs/DATA.md)). A later quality pass can swap the
-regex extractor for `coq-lsp` or SerAPI to get fully elaborated declarations.
+The **live deployment currently serves MathComp only** (19,448 declarations, 96%
+with NL descriptions) — it's the first library with high-quality descriptions, which
+are what make semantic search work well (see [docs/BENCHMARKS.md](docs/BENCHMARKS.md)).
+The UI shows the other libraries as "coming soon"; they roll out as their descriptions
+land. The extraction/index pipeline itself is generic across all libraries above.
+
+A later quality pass can swap the regex extractor for `coq-lsp` or SerAPI to get
+fully elaborated declarations.
